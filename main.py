@@ -1,14 +1,19 @@
 # uvicorn main:app --reload --host 192.168.31.67 --port 8001
 
 import asyncio
-import add_router
+import router_menu
+import router_cooking
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 
-app = FastAPI()
+app = FastAPI(
+    title="FreshFamilyMeal",
+    description="This is a detailed description of FreshFamilyMeal API.",
+    version="1.0.0",
+)
 
 # Create an async lock
 lock = asyncio.Lock()
@@ -36,9 +41,11 @@ async def favicon():
     return RedirectResponse(url="/static/favicon.ico")
 
 
-@app.get("/", tags=["home"])
-async def root():
-    return {"message": "Hello, World!!!"}
+@app.get("/", tags=["Home"])
+async def root(req: Request):
+    client_ip = req.client.host
+    return {"client_ip": client_ip, "message": "Hello, World!!!"}
 
 
-app.include_router(add_router.router)
+app.include_router(router_menu.router)
+app.include_router(router_cooking.router)
